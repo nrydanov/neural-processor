@@ -1,13 +1,14 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
-
+#include <string>
 //==============================================================================
 class NeuralProcessor : public juce::AudioProcessor
 {
 public:
     //==============================================================================
     NeuralProcessor();
+    NeuralProcessor(std::string jsonPath);
     ~NeuralProcessor() override;
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -47,4 +48,6 @@ public:
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NeuralProcessor)
+
+    
 };

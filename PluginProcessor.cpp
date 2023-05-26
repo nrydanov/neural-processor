@@ -1,6 +1,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
+#include "RTNeural/RTNeural/RTNeural.h"
 //==============================================================================
 NeuralProcessor::NeuralProcessor()
      : AudioProcessor (BusesProperties()
@@ -12,6 +12,12 @@ NeuralProcessor::NeuralProcessor()
                      #endif
                        )
 {
+}
+
+NeuralProcessor::NeuralProcessor(std::string jsonPath) : NeuralProcessor() {
+   std::ifstream jsonStream(jsonPath, std::ifstream::binary);
+   auto model = RTNeural::json_parser::parseJson<double>(jsonStream); 
+   model->reset();
 }
 
 NeuralProcessor::~NeuralProcessor()
