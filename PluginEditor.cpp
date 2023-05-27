@@ -5,7 +5,6 @@
 NeuralProcessorEditor::NeuralProcessorEditor (NeuralProcessor& p)
     : AudioProcessorEditor (&p), processorRef (p)
 {
-    juce::ignoreUnused (processorRef);
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     this->button = std::make_unique<juce::TextButton>();
@@ -31,12 +30,17 @@ void NeuralProcessorEditor::loadCheckpoint()
         | FileBrowserComponent::canSelectDirectories
         | FileBrowserComponent::canSelectFiles;
     this->chooser->launchAsync (folderChooserFlags, [this] (const FileChooser& c) {
+            using ModelType = NeuralProcessor::ModelType;
+
             auto path = c.getResult().getFullPathName();
-            
             std::ifstream jsonStream(path.toStdString(), std::ifstream::binary);
-            auto model = RTNeural::json_parser::parseJson<double>(jsonStream); 
-      //      model->reset();
-        //    processorRef.model = std::move(model);
+            nlohmann::json modelJson;
+            jsonStream >> modelJson;
+            auto modelRef = std::make_unique<ModelType>();
+            RTNeural::torch_helpers::loadLSTM<double>(modelJson, "lstm.", modelRef->get<0>());
+            RTNeural::torch_helpers::loadDense<double>(modelJson, "linear.", modelRef->get<1>());
+            modelRef.reset();
+            this->processorRef.model = std::move(modelRef);
     });
 }
 

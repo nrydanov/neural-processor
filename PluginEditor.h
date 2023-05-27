@@ -21,5 +21,6 @@ private:
     std::unique_ptr<juce::FileChooser> chooser;
     std::unique_ptr<juce::TextButton> button;
     
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NeuralProcessorEditor)
 };

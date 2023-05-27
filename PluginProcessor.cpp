@@ -12,12 +12,7 @@ NeuralProcessor::NeuralProcessor()
                      #endif
                        )
 {
-}
 
-NeuralProcessor::NeuralProcessor(juce::String jsonPath) : NeuralProcessor() {
-   std::ifstream jsonStream(jsonPath.toStdString(), std::ifstream::binary);
-   this->model = RTNeural::json_parser::parseJson<double>(jsonStream); 
-   model->reset();
 }
 
 NeuralProcessor::~NeuralProcessor()
@@ -146,11 +141,11 @@ void NeuralProcessor::processAbstractBlock (juce::AudioBuffer<T>& buffer,
     {
         auto* outBuffer = buffer.getWritePointer(channel);
         auto* inBuffer = buffer.getReadPointer(channel);
-        juce::ignoreUnused (inBuffer);
         // ..do something to the data...
-        if (model) {
+        if (this->model) {
+            
            for (int i = 0; i < buffer.getNumSamples(); ++i) {
-               outBuffer[i] = model->forward((double*)&inBuffer[i]);
+               outBuffer[i] = this->model->forward((double*)&inBuffer[i]);
            } 
         }
     }

@@ -9,6 +9,8 @@
 class NeuralProcessor : public juce::AudioProcessor
 {
 public:
+    using ModelType = RTNeural::ModelT<double, 1, 1, RTNeural::LSTMLayerT<double, 1, 64>, 
+            RTNeural::DenseT<double, 64, 1>>;
     //==============================================================================
     NeuralProcessor();
     NeuralProcessor(juce::String jsonPath);
@@ -55,6 +57,6 @@ private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NeuralProcessor)   
     
-    std::unique_ptr<RTNeural::Model<double>> model;
+    std::unique_ptr<ModelType> model;
 
 };
