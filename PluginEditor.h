@@ -18,7 +18,8 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     NeuralProcessor& processorRef;
+    std::unique_ptr<juce::FileChooser> chooser;
     std::unique_ptr<juce::TextButton> button;
-
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NeuralProcessorEditor)
 };

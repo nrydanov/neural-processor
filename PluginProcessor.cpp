@@ -135,7 +135,6 @@ void NeuralProcessor::processAbstractBlock (juce::AudioBuffer<T>& buffer,
 
     juce::ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
-    auto totalNumOutputChannels = getTotalNumOutputChannels();
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -145,12 +144,13 @@ void NeuralProcessor::processAbstractBlock (juce::AudioBuffer<T>& buffer,
     // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        T* channelData = buffer.getWritePointer (channel);
-        juce::ignoreUnused (channelData);
+        auto* outBuffer = buffer.getWritePointer(channel);
+        auto* inBuffer = buffer.getReadPointer(channel);
+        juce::ignoreUnused (inBuffer);
         // ..do something to the data...
         if (model) {
            for (int i = 0; i < buffer.getNumSamples(); ++i) {
-               channelData[i] = model->forward(const_cast<double*>((double*)&channelData[i]));
+               outBuffer[i] = model->forward((double*)&inBuffer[i]);
            } 
         }
     }
