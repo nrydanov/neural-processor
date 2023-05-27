@@ -2,13 +2,16 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include <string>
+#include <memory>
+
+#include "RTNeural/RTNeural/RTNeural.h"
 //==============================================================================
 class NeuralProcessor : public juce::AudioProcessor
 {
 public:
     //==============================================================================
     NeuralProcessor();
-    NeuralProcessor(std::string jsonPath);
+    NeuralProcessor(juce::String jsonPath);
     ~NeuralProcessor() override;
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -45,9 +48,13 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //==============================================================================
+    friend class NeuralProcessorEditor;
+
 private:
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NeuralProcessor)
-
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NeuralProcessor)   
     
+    std::unique_ptr<RTNeural::Model<double>> model;
+
 };
