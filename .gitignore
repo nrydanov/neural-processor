@@ -64,7 +64,6 @@ extras/Projucer/JUCECompileEngine.dylib
 **/cmake-build*
 *CMakeCache.txt
 cmake_install.cmake
-JUCE
 Makefile
 CMakeFiles
 
