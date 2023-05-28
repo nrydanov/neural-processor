@@ -4,19 +4,22 @@
 //==============================================================================
 NeuralProcessor::NeuralProcessor()
      : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+    #if ! JucePlugin_IsMidiEffect
+        #if ! JucePlugin_IsSynth
+            .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
+        #endif
+            .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
+        #endif
+        ),
+    parameters(*this, nullptr, juce::Identifier("Parameters"), {
+        std::make_unique<juce::AudioParameterChoice>("modelType", "Model type", 
+            juce::StringArray {"LightModel", "MediumModel", "HeavyModel"}, 0)})
 {
 
 }
-
 NeuralProcessor::~NeuralProcessor()
 {
+
 }
 
 //==============================================================================
@@ -132,21 +135,15 @@ void NeuralProcessor::processAbstractBlock (juce::AudioBuffer<T>& buffer,
     using namespace juce;
     ScopedNoDenormals noDenormals;
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    if (model) { 
-        for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
-            // ..do something to the data...
-            T* outBuffer = buffer.getWritePointer(channel);
-            for (int i = 0; i < buffer.getNumSamples(); ++i) {
+    for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
+        T* outBuffer = buffer.getWritePointer(channel);
+        auto numSamples = buffer.getNumSamples();
+        std::visit([outBuffer, numSamples] (auto&& chosenModel) {
+            for (int i = 0; i < numSamples; ++i) {
                 float input[] = { outBuffer[i] };
-                outBuffer[i] += model->forward(input);
+                outBuffer[i] += chosenModel.forward(input);
             }
-        }
+        }, model);
     }
 }
 
@@ -170,16 +167,11 @@ juce::AudioProcessorEditor* NeuralProcessor::createEditor()
 //==============================================================================
 void NeuralProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
     juce::ignoreUnused (destData);
 }
 
 void NeuralProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
     juce::ignoreUnused (data, sizeInBytes);
 }
 
