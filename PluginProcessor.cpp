@@ -126,10 +126,11 @@ template<typename T>
 void NeuralProcessor::processAbstractBlock (juce::AudioBuffer<T>& buffer,
                                                 juce::MidiBuffer& midiMessages)
 {
-    juce::ignoreUnused (midiMessages);
+    
+    juce::ignoreUnused(midiMessages);
 
-    juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
+    using namespace juce;
+    ScopedNoDenormals noDenormals;
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -137,16 +138,14 @@ void NeuralProcessor::processAbstractBlock (juce::AudioBuffer<T>& buffer,
     // the samples and the outer loop is handling the channels.
     // Alternatively, you can process the samples with the channels
     // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* outBuffer = buffer.getWritePointer(channel);
-        auto* inBuffer = buffer.getReadPointer(channel);
-        // ..do something to the data...
-        if (this->model) {
-            
-           for (int i = 0; i < buffer.getNumSamples(); ++i) {
-               outBuffer[i] = this->model->forward((double*)&inBuffer[i]);
-           } 
+    if (model) { 
+        for (int channel = 0; channel < buffer.getNumChannels(); ++channel) {
+            // ..do something to the data...
+            T* outBuffer = buffer.getWritePointer(channel);
+            for (int i = 0; i < buffer.getNumSamples(); ++i) {
+                float input[] = { outBuffer[i] };
+                outBuffer[i] += model->forward(input);
+            }
         }
     }
 }
@@ -154,11 +153,6 @@ void NeuralProcessor::processAbstractBlock (juce::AudioBuffer<T>& buffer,
 void NeuralProcessor::processBlock(juce::AudioBuffer<float>& buffer,
                                        juce::MidiBuffer& midiMessages) {
     processAbstractBlock<float>(buffer, midiMessages);
-}
-
-void NeuralProcessor::processBlock(juce::AudioBuffer<double>& buffer,
-                                       juce::MidiBuffer& midiMessages) {
-    processAbstractBlock<double>(buffer, midiMessages);
 }
 
 

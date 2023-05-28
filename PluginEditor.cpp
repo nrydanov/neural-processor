@@ -13,7 +13,7 @@ NeuralProcessorEditor::NeuralProcessorEditor (NeuralProcessor& p)
     this->button->onClick = [this] {loadCheckpoint();};
 
     this->chooser = std::make_unique<juce::FileChooser>("Please select the checkpoint",
-            juce::File::getSpecialLocation (juce::File::userHomeDirectory), "*.json");
+            juce::File::getSpecialLocation (juce::File::userHomeDirectory), "*.json", false);
     addAndMakeVisible(*this->button);
     setSize (800, 600);
 }
@@ -36,11 +36,10 @@ void NeuralProcessorEditor::loadCheckpoint()
             std::ifstream jsonStream(path.toStdString(), std::ifstream::binary);
             nlohmann::json modelJson;
             jsonStream >> modelJson;
-            auto modelRef = std::make_unique<ModelType>();
-            RTNeural::torch_helpers::loadLSTM<double>(modelJson, "lstm.", modelRef->get<0>());
-            RTNeural::torch_helpers::loadDense<double>(modelJson, "linear.", modelRef->get<1>());
-            modelRef.reset();
-            this->processorRef.model = std::move(modelRef);
+            processorRef.model = std::make_unique<ModelType>();
+            RTNeural::torch_helpers::loadLSTM<float>(modelJson, "lstm.", processorRef.model->get<0>());
+            RTNeural::torch_helpers::loadDense<float>(modelJson, "linear.", processorRef.model->get<1>());
+            processorRef.model->reset();
     });
 }
 

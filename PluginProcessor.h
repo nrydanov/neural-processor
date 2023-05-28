@@ -9,8 +9,8 @@
 class NeuralProcessor : public juce::AudioProcessor
 {
 public:
-    using ModelType = RTNeural::ModelT<double, 1, 1, RTNeural::LSTMLayerT<double, 1, 64>, 
-            RTNeural::DenseT<double, 64, 1>>;
+    using ModelType = RTNeural::ModelT<float, 1, 1, RTNeural::LSTMLayerT<float, 1, 6>, 
+            RTNeural::DenseT<float, 6, 1>>;
     //==============================================================================
     NeuralProcessor();
     NeuralProcessor(juce::String jsonPath);
@@ -25,7 +25,6 @@ public:
     void processAbstractBlock(juce::AudioBuffer<T>&, juce::MidiBuffer&);
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
-    void processBlock (juce::AudioBuffer<double>&, juce::MidiBuffer&) override;
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -53,6 +52,7 @@ public:
     //==============================================================================
     friend class NeuralProcessorEditor;
 
+    bool loaded = false;
 private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NeuralProcessor)   

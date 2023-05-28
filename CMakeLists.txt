@@ -9,7 +9,8 @@
 # information can be found in the CMake docs.
 
 cmake_minimum_required(VERSION 3.15)
-set (CMAKE_CXX_STANDARD 20)
+set (CMAKE_CXX_STANDARD 17)
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.12" CACHE STRING "Minimum OS X deployment target")
 
 # The top-level CMakeLists.txt file for a project must contain a literal, direct call to the
 # `project()` command. `project()` sets up some helpful variables that describe source/binary
@@ -22,10 +23,12 @@ project(AUDIO_PLUGIN_EXAMPLE VERSION 0.0.1)
 # included JUCE directly in your source tree (perhaps as a submodule), you'll need to tell CMake to
 # include that subdirectory as part of the build.
 
+
 # find_package(JUCE CONFIG REQUIRED)        # If you've installed JUCE to your system
-# or
+set(RTNEURAL_STL ON CACHE BOOL "Use RTNeural with this backend" FORCE)
 add_subdirectory(JUCE)                    # If you've put JUCE in a subdirectory called JUCE
-add_subdirectory(RTNeural/RTNeural)
+add_subdirectory(RTNeural)
+include_directories(RTNeural)
 
 # If you are building a VST2 or AAX plugin, CMake needs to be told where to find these SDKs on your
 # system. This setup should be done before calling `juce_add_plugin`.
@@ -109,6 +112,7 @@ target_link_libraries(NeuralProcessor
     PRIVATE
         # AudioPluginData           # If we'd created a binary data target, we'd link to it here
         juce::juce_audio_utils
+        RTNeural
     PUBLIC
         juce::juce_recommended_config_flags
         juce::juce_recommended_lto_flags
